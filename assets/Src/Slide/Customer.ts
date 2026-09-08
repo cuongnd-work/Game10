@@ -476,17 +476,19 @@ export class Customer extends Component {
     }
 
     /**
-     * Chia thời gian theo chuyển động gia tốc đều dọc toàn quỹ đạo.
-     * Dùng mốc thời gian tích lũy để gia tốc không bị reset tại waypoint.
+     * Tính vận tốc liên tục theo độ cao: xuống dốc thì tăng tốc, lên dốc thì
+     * giảm tốc. Sau đó chuẩn hóa về `total` để upgrade vẫn giữ đúng nhịp.
      */
     private splitDurationByAcceleration(pathWorld: Vec3[], total: number): number[] {
         const from = this.node.worldPosition.clone();
         const lengths: number[] = [];
+        const heightChanges: number[] = [];
         let prev = from;
         let sum = 0;
         for (const waypoint of pathWorld) {
             const len = Vec3.distance(prev, waypoint);
             lengths.push(len);
+            heightChanges.push(waypoint.y - prev.y);
             sum += len;
             prev = waypoint;
         }
@@ -496,20 +498,20 @@ export class Customer extends Component {
         }
         const startSpeed = 1;
         const endSpeed = Customer.SLIDE_END_SPEED_RATIO;
-        const speedSquaredDelta = endSpeed * endSpeed - startSpeed * startSpeed;
-        const durationScale = total / (endSpeed - startSpeed);
-        const durations: number[] = [];
-        let travelled = 0;
-        let previousTime = 0;
-        for (const len of lengths) {
-            travelled += len;
-            const progress = Math.min(1, travelled / sum);
-            const speed = Math.sqrt(startSpeed * startSpeed + speedSquaredDelta * progress);
-            const currentTime = (speed - startSpeed) * durationScale;
-            durations.push(Math.max(0.01, currentTime - previousTime));
-            previousTime = currentTime;
+        const totalDrop = Math.max(1, from.y - pathWorld[pathWorld.length - 1].y);
+        const gravity = (endSpeed * endSpeed - startSpeed * startSpeed) / (2 * totalDrop);
+        const rawDurations: number[] = [];
+        let speed = startSpeed;
+        for (let i = 0; i < lengths.length; i++) {
+            // v² = u² + 2as, với phần rơi theo Y là quãng đường sinh gia tốc.
+            // Đoạn đi lên có heightChanges > 0 nên tự làm giảm vận tốc.
+            const nextSpeedSquared = speed * speed - 2 * gravity * heightChanges[i];
+            const nextSpeed = Math.sqrt(Math.max(0.16, nextSpeedSquared));
+            rawDurations.push((2 * lengths[i]) / Math.max(0.01, speed + nextSpeed));
+            speed = nextSpeed;
         }
-        return durations;
+        const rawTotal = rawDurations.reduce((acc, duration) => acc + duration, 0);
+        return rawDurations.map((duration) => Math.max(0.01, (duration / rawTotal) * total));
     }
 
     private applyFacing(targetWorldPos: Vec3): void {
