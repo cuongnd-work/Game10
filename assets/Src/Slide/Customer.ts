@@ -55,7 +55,7 @@ export class Customer extends Component {
     @property({ tooltip: 'Lật visual theo trục X khi di chuyển sang trái' })
     flipWhenMovingLeft: boolean = true;
 
-    /** Bubble chữ "Speed" bật khi player upgrade speed. */
+    /** Node Spine fx_appear bật khi player upgrade speed. */
     @property(Node)
     speedBubble: Node = null!;
 
@@ -72,8 +72,7 @@ export class Customer extends Component {
     private _visualBaseLocalPos: Vec3 = new Vec3();
     private _visualBaseEulerZ: number = 0;
     private _poolBobbing: boolean = false;
-    private _speedBubbleBaseScale: Vec3 | null = null;
-    private _speedBubbleBaseLocalPos: Vec3 | null = null;
+    private _speedEffectPlayId: number = 0;
 
     get state(): CustomerState { return this._state; }
     get queueIndex(): number { return this._queueIndex; }
@@ -339,50 +338,21 @@ export class Customer extends Component {
 
     // ── VFX ──────────────────────────────────────────────────────
 
-    /** Bubble "Speed" nảy lên đầu khách khi upgrade speed (port từ Attendant). */
+    /** Phát fx_appear / fx_above trên đầu khách khi upgrade speed. */
     playSpeedBubble(): void {
         const node = this.speedBubble;
         if (!node) return;
-
-        if (!this._speedBubbleBaseScale) this._speedBubbleBaseScale = node.scale.clone();
-        if (!this._speedBubbleBaseLocalPos) this._speedBubbleBaseLocalPos = node.position.clone();
-
-        const baseScale = this._speedBubbleBaseScale.clone();
-        const baseLocal = this._speedBubbleBaseLocalPos.clone();
-        const risenLocal = new Vec3(baseLocal.x, baseLocal.y + 70, baseLocal.z);
-        const bigScale = new Vec3(baseScale.x * 1.3, baseScale.y * 1.3, baseScale.z);
-        const startScale = new Vec3(baseScale.x * 0.6, baseScale.y * 0.6, baseScale.z);
-
-        const opacity = node.getComponent(UIOpacity) ?? node.addComponent(UIOpacity);
-
         Tween.stopAllByTarget(node);
-        Tween.stopAllByTarget(opacity);
-
-        node.setPosition(baseLocal);
-        node.setScale(startScale);
-        opacity.opacity = 255;
         node.active = true;
+        const effect = node.getComponent(sp.Skeleton);
+        effect?.setAnimation(0, 'fx_above', false);
 
-        tween(node)
-            .to(0.15, { scale: bigScale }, { easing: 'backOut' })
-            .to(0.15, { scale: baseScale }, { easing: 'quadIn' })
-            .start();
-
-        tween(node)
-            .delay(0.1)
-            .to(0.6, { position: risenLocal }, { easing: 'sineOut' })
-            .start();
-
-        tween(opacity)
-            .delay(0.35)
-            .to(0.35, { opacity: 0 }, { easing: 'quadIn' })
-            .call(() => {
+        const playId = ++this._speedEffectPlayId;
+        this.scheduleOnce(() => {
+            if (playId === this._speedEffectPlayId) {
                 node.active = false;
-                node.setPosition(baseLocal);
-                node.setScale(baseScale);
-                opacity.opacity = 255;
-            })
-            .start();
+            }
+        }, 0.6);
     }
 
     // ── Pool ─────────────────────────────────────────────────────
@@ -419,6 +389,7 @@ export class Customer extends Component {
         this._state = CustomerState.QUEUING;
         this.onSlideStart = null;
         if (this.speedBubble) {
+            this._speedEffectPlayId++;
             Tween.stopAllByTarget(this.speedBubble);
             this.speedBubble.active = false;
         }

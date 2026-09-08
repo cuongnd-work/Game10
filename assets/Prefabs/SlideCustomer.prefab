@@ -282,7 +282,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "SpeedBubble",
+    "_name": "fx_appear",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -316,8 +316,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 0.45,
+      "y": 0.45,
       "z": 1
     },
     "_mobility": 0,
@@ -371,7 +371,7 @@
     "fileId": "6cKpHH3pAaBJFe4uyIrkog"
   },
   {
-    "__type__": "cc.Label",
+    "__type__": "sp.Skeleton",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -387,54 +387,28 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 120,
+      "r": 255,
       "g": 255,
-      "b": 160,
+      "b": 255,
       "a": 255
     },
-    "_string": "Speed",
-    "_horizontalAlign": 1,
-    "_verticalAlign": 1,
-    "_actualFontSize": 26,
-    "_fontSize": 26,
-    "_fontFamily": "Arial",
-    "_lineHeight": 30,
-    "_overflow": 0,
-    "_enableWrapText": false,
-    "_font": {
-      "__uuid__": "4b362bb5-2b14-46a5-8c9e-a6688bb70e61",
-      "__expectedType__": "cc.TTFFont"
+    "_skeletonData": {
+      "__uuid__": "14960afe-1d09-486c-b12f-55b0b871f4fd",
+      "__expectedType__": "sp.SkeletonData"
     },
-    "_isSystemFontUsed": false,
-    "_spacingX": 0,
-    "_isItalic": false,
-    "_isBold": true,
-    "_isUnderline": false,
-    "_underlineHeight": 2,
+    "defaultSkin": "default",
+    "defaultAnimation": "fx_above",
+    "_premultipliedAlpha": false,
+    "_timeScale": 1,
+    "_preCacheMode": 0,
     "_cacheMode": 0,
-    "_enableOutline": true,
-    "_outlineColor": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_outlineWidth": 3,
-    "_enableShadow": false,
-    "_shadowColor": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_shadowOffset": {
-      "__type__": "cc.Vec2",
-      "x": 2,
-      "y": 2
-    },
-    "_shadowBlur": 2,
+    "_sockets": [],
+    "_useTint": false,
+    "_debugMesh": false,
+    "_debugBones": false,
+    "_debugSlots": false,
+    "_enableBatch": false,
+    "loop": false,
     "_id": ""
   },
   {
