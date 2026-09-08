@@ -29,6 +29,9 @@ export enum CustomerState {
  */
 @ccclass('Customer')
 export class Customer extends Component {
+    /** Tốc độ ở chân cầu so với lúc vừa vào máng. */
+    private static readonly SLIDE_END_SPEED_RATIO = 2.4;
+
     /** Node chứa toàn bộ hình ảnh (để flip / scale). Bỏ trống = dùng chính node này. */
     @property(Node)
     visualRoot: Node = null!;
@@ -175,8 +178,8 @@ export class Customer extends Component {
 
     /**
      * Trượt theo `pathWorld` (waypoint cuối cùng = cổng vòm).
-     * Tổng thời gian = SLIDE_RUNTIME.slideDuration, chia theo độ dài từng đoạn
-     * để tốc độ đều trên toàn đường trượt.
+     * Tổng thời gian = SLIDE_RUNTIME.slideDuration. Thời gian từng đoạn được
+     * tính theo gia tốc đều để khách tăng tốc tự nhiên khi xuống dốc.
      */
     startSlide(
         pathWorld: Vec3[],
@@ -203,7 +206,7 @@ export class Customer extends Component {
         this.onSlideStart?.();
 
         const total = Math.max(0.05, SLIDE_RUNTIME.slideDuration);
-        const durations = this.splitDurationByLength(pathWorld, total);
+        const durations = this.splitDurationByAcceleration(pathWorld, total);
 
         let chain = tween(this.node);
         for (let i = 0; i < pathWorld.length; i++) {
@@ -472,8 +475,11 @@ export class Customer extends Component {
         return path;
     }
 
-    /** Chia `total` giây cho từng đoạn theo tỉ lệ độ dài để tốc độ đều. */
-    private splitDurationByLength(pathWorld: Vec3[], total: number): number[] {
+    /**
+     * Chia thời gian theo chuyển động gia tốc đều dọc toàn quỹ đạo.
+     * Dùng mốc thời gian tích lũy để gia tốc không bị reset tại waypoint.
+     */
+    private splitDurationByAcceleration(pathWorld: Vec3[], total: number): number[] {
         const from = this.node.worldPosition.clone();
         const lengths: number[] = [];
         let prev = from;
@@ -488,7 +494,22 @@ export class Customer extends Component {
             const even = total / pathWorld.length;
             return pathWorld.map(() => Math.max(0.01, even));
         }
-        return lengths.map((len) => Math.max(0.01, (len / sum) * total));
+        const startSpeed = 1;
+        const endSpeed = Customer.SLIDE_END_SPEED_RATIO;
+        const speedSquaredDelta = endSpeed * endSpeed - startSpeed * startSpeed;
+        const durationScale = total / (endSpeed - startSpeed);
+        const durations: number[] = [];
+        let travelled = 0;
+        let previousTime = 0;
+        for (const len of lengths) {
+            travelled += len;
+            const progress = Math.min(1, travelled / sum);
+            const speed = Math.sqrt(startSpeed * startSpeed + speedSquaredDelta * progress);
+            const currentTime = (speed - startSpeed) * durationScale;
+            durations.push(Math.max(0.01, currentTime - previousTime));
+            previousTime = currentTime;
+        }
+        return durations;
     }
 
     private applyFacing(targetWorldPos: Vec3): void {
