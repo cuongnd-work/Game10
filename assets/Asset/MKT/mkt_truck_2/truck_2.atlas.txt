@@ -1,0 +1,34 @@
+truck_2.png
+size:1024,512
+filter:Linear,Linear
+pma:true
+Group 12
+bounds:2,32,439,420
+Group 16
+bounds:718,416,30,36
+offsets:1,1,32,38
+Shape 52
+bounds:434,419,34,33
+offsets:1,1,36,35
+Shape 94
+bounds:398,417,34,35
+offsets:1,1,36,37
+Shape 95
+bounds:130,416,40,36
+offsets:1,1,42,38
+Truck_back
+bounds:420,2,450,336
+rotate:90
+banh_xe_1
+bounds:654,386,62,66
+offsets:1,1,64,68
+banh_xe_2
+bounds:66,386,62,66
+offsets:1,1,64,68
+banh_xe_3
+bounds:2,386,62,66
+offsets:1,1,64,68
+bong
+bounds:758,29,423,241
+offsets:1,1,425,243
+rotate:90

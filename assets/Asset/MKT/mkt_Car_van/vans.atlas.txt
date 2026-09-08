@@ -1,0 +1,21 @@
+vans.png
+size:512,1024
+filter:Linear,Linear
+pma:true
+Back_than xe
+bounds:2,204,384,332
+Front_banh xe
+bounds:2,481,47,55
+offsets:1,1,49,57
+Front_banh xe copy
+bounds:51,482,47,54
+offsets:1,1,49,56
+Front_than xe
+bounds:133,2,377,332
+rotate:180
+Front_them
+bounds:355,502,41,34
+offsets:1,1,43,36
+Layer 1
+bounds:100,499,43,37
+offsets:1,1,45,39

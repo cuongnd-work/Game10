@@ -1,0 +1,29 @@
+Nhan vien bom xang.png
+size:1024,1024
+filter:Linear,Linear
+pma:true
+Body
+bounds:561,493,415,345
+offsets:1,1,417,347
+rotate:90
+Ellipse 1
+bounds:2,153,497,219
+Head
+bounds:2,374,557,534
+offsets:1,1,559,536
+L_Foot
+bounds:501,71,207,139
+offsets:1,1,210,141
+L_Leg
+bounds:2,2,184,149
+offsets:1,1,187,151
+R_Foot
+bounds:710,70,203,140
+offsets:1,1,205,142
+R_Leg
+bounds:188,3,180,148
+offsets:1,1,182,150
+fuel pump nozzle
+bounds:561,212,279,396
+offsets:1,1,281,398
+rotate:90

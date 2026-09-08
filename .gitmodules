@@ -1,0 +1,6 @@
+[submodule "assets/plugins/playable-foundation"]
+	path = assets/plugins/playable-foundation
+	url = git@github.com:dyCuong03/playable-foundation.git
+[submodule "extensions/cocos-mcp-server"]
+	path = extensions/cocos-mcp-server
+	url = git@github.com:dyCuong03/cocos-mcp-server.git

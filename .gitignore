@@ -1,0 +1,98 @@
+# ==========================================
+# Cocos Creator
+# ==========================================
+
+# Cocos generated/cache folders
+library/
+local/
+temp/
+build/
+build-templates/
+profiles/
+
+# Cocos Creator cache
+.cache/
+.project/
+.settings/
+
+# ==========================================
+# Logs
+# ==========================================
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# OS generated files
+# ==========================================
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# IDE / Editor
+# ==========================================
+
+.idea/
+.vscode/
+
+# VS Code workspace files
+*.code-workspace
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# ==========================================
+# Node / NPM
+# ==========================================
+
+node_modules/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================================
+# Build output
+# ==========================================
+
+# Android
+*.apk
+*.aab
+
+# iOS
+*.ipa
+
+# General build output
+dist/
+release/
+
+# ==========================================
+# Cocos Creator temporary files
+# ==========================================
+
+*.tmp
+*.temp
+
+# ==========================================
+# Crash / profiling files
+# ==========================================
+
+crashlytics-build.properties
+*.stackdump
+.creator/
+.claude/settings.local.json
+.codegraph/

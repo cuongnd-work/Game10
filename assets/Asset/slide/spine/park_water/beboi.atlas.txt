@@ -1,0 +1,13 @@
+beboi.png
+size:256,64
+filter:Linear,Linear
+pma:true
+Layer 3 copy 11
+bounds:139,2,47,14
+offsets:1,1,49,16
+Layer 3 copy 7
+bounds:2,11,135,29
+offsets:1,1,137,31
+Layer 3 copy 9
+bounds:139,18,87,22
+offsets:1,1,89,24

@@ -1,0 +1,34 @@
+Bus.png
+size:1024,512
+filter:Linear,Linear
+pma:true
+Back_Banh sau
+bounds:958,433,50,63
+offsets:1,1,52,65
+Back_Banh trc
+bounds:582,429,50,67
+offsets:1,1,52,69
+Back_Shape 1
+bounds:884,348,49,37
+offsets:1,1,51,39
+Back_Shape 13
+bounds:907,387,47,44
+offsets:1,1,49,46
+Back_than xe
+bounds:640,2,382,323
+Front_Banh sau
+bounds:906,433,50,63
+offsets:1,1,52,65
+Front_Banh trc
+bounds:530,429,50,67
+offsets:1,1,52,69
+Front_Shape 1
+bounds:634,458,49,38
+offsets:1,1,51,40
+Front_Shape 13
+bounds:956,387,46,44
+offsets:1,1,48,46
+Front_than xe
+bounds:530,168,375,328
+shadow
+bounds:2,166,526,330

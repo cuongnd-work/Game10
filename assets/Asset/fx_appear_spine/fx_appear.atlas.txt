@@ -1,0 +1,13 @@
+fx_appear.png
+size:256,512
+filter:Linear,Linear
+pma:true
+Circle05
+bounds:2,82,228,124
+offsets:14,118,256,256
+light_shape
+bounds:2,2,188,78
+offsets:34,89,256,256
+ring08
+bounds:2,208,240,240
+offsets:8,8,256,256
