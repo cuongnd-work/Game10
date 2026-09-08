@@ -86,6 +86,11 @@ export class SlideTrack extends Component {
     private static readonly FX_FALLBACK_DURATION = 1;
 
     private _customer: Customer | null = null;
+    private _currentLevel: number = 1;
+
+    /** Level 2/3 dùng thân máng cong chữ S; offset theo các SP1..SP4. */
+    private static readonly CURVED_PATH_X_OFFSETS = [-3, -20, 8, 0];
+    private static readonly CURVE_SAMPLES_PER_SEGMENT = 4;
 
     /** Làn đang bật và chưa có khách nào chiếm. */
     get isFree(): boolean {
@@ -119,6 +124,7 @@ export class SlideTrack extends Component {
      * mái kính. Hình học (platform, slidePath, arch, exit) không đổi theo level.
      */
     applyLevel(level: number): void {
+        this._currentLevel = Math.max(1, level);
         this.applyFrame(this.bodySprite, this.bodyFramesByLevel, level);
         this.applyFrame(this.railSprite, this.railFramesByLevel, level);
         if (this.dome) this.dome.active = level >= SLIDE_CONFIG.DOME_FROM_LEVEL;
@@ -160,7 +166,46 @@ export class SlideTrack extends Component {
             .filter((n) => !!n)
             .map((n) => n.worldPosition.clone());
         if (this.archNode) path.push(this.archNode.worldPosition.clone());
-        return path;
+        if (this._currentLevel < 2 || path.length < 2) return path;
+
+        // Art level cao uốn chữ S. Dịch control point theo trục X của lane rồi
+        // lấy mẫu Catmull-Rom để nhân vật bám thân máng thay vì cắt đường thẳng.
+        const scaleX = Math.abs(this.node.worldScale.x);
+        for (let i = 0; i < this.slidePath.length && i < path.length; i++) {
+            path[i].x += (SlideTrack.CURVED_PATH_X_OFFSETS[i] ?? 0) * scaleX;
+        }
+
+        const start = this.getPlatformWorldPos();
+        return this.sampleCatmullRom([start, ...path]);
+    }
+
+    private sampleCatmullRom(points: Vec3[]): Vec3[] {
+        const result: Vec3[] = [];
+        const samples = SlideTrack.CURVE_SAMPLES_PER_SEGMENT;
+        for (let segment = 0; segment < points.length - 1; segment++) {
+            const p0 = points[Math.max(0, segment - 1)];
+            const p1 = points[segment];
+            const p2 = points[segment + 1];
+            const p3 = points[Math.min(points.length - 1, segment + 2)];
+            for (let sample = 1; sample <= samples; sample++) {
+                result.push(this.catmullRom(p0, p1, p2, p3, sample / samples));
+            }
+        }
+        return result;
+    }
+
+    private catmullRom(p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3, t: number): Vec3 {
+        const t2 = t * t;
+        const t3 = t2 * t;
+        return new Vec3(
+            0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t
+                + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2
+                + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
+            0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t
+                + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2
+                + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3),
+            p1.z + (p2.z - p1.z) * t,
+        );
     }
 
     getExitPathWorld(): Vec3[] {

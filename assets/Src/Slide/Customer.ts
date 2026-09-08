@@ -70,6 +70,7 @@ export class Customer extends Component {
     private _queueIndex: number = -1;
     private _visualBaseScale: Vec3 = new Vec3(1, 1, 1);
     private _visualBaseLocalPos: Vec3 = new Vec3();
+    private _visualBaseEulerZ: number = 0;
     private _poolBobbing: boolean = false;
     private _speedBubbleBaseScale: Vec3 | null = null;
     private _speedBubbleBaseLocalPos: Vec3 | null = null;
@@ -81,6 +82,7 @@ export class Customer extends Component {
         this.visualRoot = this.visualRoot ?? this.skeleton?.node ?? this.node;
         this._visualBaseScale = this.visualRoot.scale.clone();
         this._visualBaseLocalPos = this.visualRoot.position.clone();
+        this._visualBaseEulerZ = this.visualRoot.eulerAngles.z;
         if (this.speedBubble) this.speedBubble.active = false;
     }
 
@@ -207,6 +209,7 @@ export class Customer extends Component {
         for (let i = 0; i < pathWorld.length; i++) {
             const waypoint = pathWorld[i];
             chain = chain
+                .call(() => this.applySlideLean(waypoint))
                 .to(
                     durations[i],
                     { position: this.worldToParentLocal(waypoint) },
@@ -216,6 +219,7 @@ export class Customer extends Component {
 
         this._moveTween = chain
             .call(() => {
+                this.resetSlideLean();
                 const archPos = this.node.worldPosition.clone();
                 this.setState(CustomerState.EXITING);
                 onReachedArch(archPos);
@@ -422,6 +426,7 @@ export class Customer extends Component {
         // hiện ra trong suốt hoặc lệch vị trí.
         this.stopPoolBob();
         if (this.visualRoot) this.visualRoot.setScale(this._visualBaseScale);
+        this.resetSlideLean();
         const opacity = this.node.getComponent(UIOpacity);
         if (opacity) {
             Tween.stopAllByTarget(opacity);
@@ -493,6 +498,19 @@ export class Customer extends Component {
         const scale = this._visualBaseScale.clone();
         scale.x = Math.abs(scale.x) * (dx < 0 ? -1 : 1);
         this.visualRoot.setScale(scale);
+    }
+
+    /** Nghiêng nhẹ theo tiếp tuyến khúc cua, không lật animation Front_Slide. */
+    private applySlideLean(targetWorldPos: Vec3): void {
+        if (!this.visualRoot) return;
+        const dx = targetWorldPos.x - this.node.worldPosition.x;
+        const dy = Math.max(1, Math.abs(targetWorldPos.y - this.node.worldPosition.y));
+        const lean = Math.max(-9, Math.min(9, (dx / dy) * 18));
+        this.visualRoot.setRotationFromEuler(0, 0, this._visualBaseEulerZ - lean);
+    }
+
+    private resetSlideLean(): void {
+        this.visualRoot?.setRotationFromEuler(0, 0, this._visualBaseEulerZ);
     }
 
     private playAnim(name: string): void {

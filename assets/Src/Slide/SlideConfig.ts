@@ -10,10 +10,10 @@ export const SLIDE_CONFIG = {
     EARN_PER_RIDE: 5,
 
     // --- Speed upgrade ---
-    /** Thời gian trượt gốc (giây) khi chưa upgrade. */
-    BASE_SLIDE_DURATION: 4,
-    /** Mỗi cấp speed giảm 15% thời gian trượt (cộng dồn nhân). */
-    SPEED_STEP: 0.85,
+    /** Nhịp gốc đủ nhanh cho playable; tránh cảm giác chờ ở lần trượt đầu. */
+    BASE_SLIDE_DURATION: 3,
+    /** 10 cấp đưa thời gian về khoảng 0.84s nhưng mỗi lần mua vẫn cải thiện rõ. */
+    SPEED_STEP: 0.88,
     SPEED_MAX_UPGRADES: 10,
     SPEED_UPGRADE_COST: 20,
 
