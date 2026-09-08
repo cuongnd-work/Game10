@@ -32,7 +32,7 @@ export class UpgradeButton extends Component {
     @property(Label)
     costLabel: Label = null!;
 
-    @property({ type: Node, tooltip: 'Node nhỏ để định vị hand-tap của CursorHint' })
+    @property({ type: Node, tooltip: 'Legacy hand anchor; hint hiện bám theo tâm tapTarget.' })
     handTapTarget: Node = null!;
 
     @property({ type: Sprite, tooltip: 'Sprite nền của nút – bị tô xám khi MAX' })
@@ -109,7 +109,9 @@ export class UpgradeButton extends Component {
     }
 
     getHintTarget(): Node | null {
-        return this.handTapTarget ?? this.tapTarget ?? this.node;
+        // Các HandAnchor cũ nằm dưới button nên làm con trỏ bị đẩy khỏi vùng
+        // bấm. Tâm tapTarget là mốc chung chính xác cho mọi kích thước button.
+        return this.tapTarget ?? this.node;
     }
 
     /** Hiệu ứng nhấn khi tap. */
