@@ -81,6 +81,9 @@ export class CoinEffect extends Component {
 
         const labelNode = instantiate(this.coinLabelPrefab);
         labelNode.parent = this.node;
+        // EffceCoin prefab lưu layer của camera world cũ. Slide scene chạy UI
+        // bằng layer của CoinEffect, nên phải đồng bộ cả cây sau khi instantiate.
+        this.setLayerRecursively(labelNode, this.node.layer);
         labelNode.worldPosition = worldPos.clone();
 
         // Label nằm ở child cuối trong prefab EffceCoin – tìm bằng getComponentInChildren
@@ -118,5 +121,10 @@ export class CoinEffect extends Component {
             .start();
 
         onArrived?.();
+    }
+
+    private setLayerRecursively(node: Node, layer: number): void {
+        node.layer = layer;
+        for (const child of node.children) this.setLayerRecursively(child, layer);
     }
 }

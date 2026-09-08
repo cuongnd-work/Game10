@@ -187,7 +187,9 @@ export class SlideGameManager extends Component {
         const effect = instantiate(this.laneUpgradeEffectPrefab);
         effect.parent = this.effectLayer;
         effect.worldPosition = new Vec3(worldPos.x, worldPos.y + 45, worldPos.z);
-        this.setLayerRecursively(effect, this.effectLayer.layer);
+        // EffectLayer còn giữ layer camera world cũ; manager nằm trên đúng UI
+        // gameplay layer của slide-scene nên dùng layer này cho toàn bộ particle.
+        this.setLayerRecursively(effect, this.node.layer);
 
         // Firework prefab chạy loop 1 giây; giữ thêm phần lifetime của hạt rồi hủy.
         this.scheduleOnce(() => {
