@@ -172,6 +172,7 @@ export class SlideField extends Component {
 
         customer.startSlide(
             track.getSlidePathWorld(),
+            track.slideEndSpeedRatio,
             (worldPos) => {
                 track.playSplashEffect();
                 this.onRideCompleted?.(worldPos);

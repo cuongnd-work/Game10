@@ -101,6 +101,11 @@ export class SlideTrack extends Component {
         return this._customer;
     }
 
+    /** Cầu cong level 2/3 nhấn mạnh gia tốc ở đoạn dốc hơn cầu thẳng level 1. */
+    get slideEndSpeedRatio(): number {
+        return this._currentLevel >= 2 ? 3.2 : 2.4;
+    }
+
     protected onLoad(): void {
         this.hideAllEffects();
     }

@@ -29,9 +29,6 @@ export enum CustomerState {
  */
 @ccclass('Customer')
 export class Customer extends Component {
-    /** Tốc độ ở chân cầu so với lúc vừa vào máng. */
-    private static readonly SLIDE_END_SPEED_RATIO = 2.4;
-
     /** Node chứa toàn bộ hình ảnh (để flip / scale). Bỏ trống = dùng chính node này. */
     @property(Node)
     visualRoot: Node = null!;
@@ -183,6 +180,7 @@ export class Customer extends Component {
      */
     startSlide(
         pathWorld: Vec3[],
+        endSpeedRatio: number,
         onReachedArch: (worldPos: Vec3) => void,
         onFinished: () => void,
     ): void {
@@ -206,7 +204,7 @@ export class Customer extends Component {
         this.onSlideStart?.();
 
         const total = Math.max(0.05, SLIDE_RUNTIME.slideDuration);
-        const durations = this.splitDurationByAcceleration(pathWorld, total);
+        const durations = this.splitDurationByAcceleration(pathWorld, total, endSpeedRatio);
 
         let chain = tween(this.node);
         for (let i = 0; i < pathWorld.length; i++) {
@@ -479,7 +477,11 @@ export class Customer extends Component {
      * Tính vận tốc liên tục theo độ cao: xuống dốc thì tăng tốc, lên dốc thì
      * giảm tốc. Sau đó chuẩn hóa về `total` để upgrade vẫn giữ đúng nhịp.
      */
-    private splitDurationByAcceleration(pathWorld: Vec3[], total: number): number[] {
+    private splitDurationByAcceleration(
+        pathWorld: Vec3[],
+        total: number,
+        endSpeedRatio: number,
+    ): number[] {
         const from = this.node.worldPosition.clone();
         const lengths: number[] = [];
         const heightChanges: number[] = [];
@@ -497,7 +499,7 @@ export class Customer extends Component {
             return pathWorld.map(() => Math.max(0.01, even));
         }
         const startSpeed = 1;
-        const endSpeed = Customer.SLIDE_END_SPEED_RATIO;
+        const endSpeed = Math.max(startSpeed + 0.1, endSpeedRatio);
         const totalDrop = Math.max(1, from.y - pathWorld[pathWorld.length - 1].y);
         const gravity = (endSpeed * endSpeed - startSpeed * startSpeed) / (2 * totalDrop);
         const rawDurations: number[] = [];
