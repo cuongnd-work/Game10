@@ -10,8 +10,8 @@ export const SLIDE_CONFIG = {
     EARN_PER_RIDE: 5,
 
     // --- Speed upgrade ---
-    /** Nhịp gốc đủ nhanh cho playable; tránh cảm giác chờ ở lần trượt đầu. */
-    BASE_SLIDE_DURATION: 3,
+    /** Nhanh hơn 30% so với nhịp 3 giây trước đó: 3 / 1.3 ≈ 2.31 giây. */
+    BASE_SLIDE_DURATION: 3 / 1.3,
     /** 10 cấp đưa thời gian về khoảng 0.84s nhưng mỗi lần mua vẫn cải thiện rõ. */
     SPEED_STEP: 0.88,
     SPEED_MAX_UPGRADES: 10,
