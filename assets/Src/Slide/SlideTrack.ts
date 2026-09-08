@@ -89,7 +89,7 @@ export class SlideTrack extends Component {
     private _currentLevel: number = 1;
 
     /** Level 2/3 dùng thân máng cong chữ S; offset theo các SP1..SP4. */
-    private static readonly CURVED_PATH_X_OFFSETS = [-3, -20, 8, 0];
+    private static readonly CURVED_PATH_X_OFFSETS = [3, -3, 14, 13, 11];
     private static readonly CURVE_SAMPLES_PER_SEGMENT = 4;
 
     /** Làn đang bật và chưa có khách nào chiếm. */
@@ -176,7 +176,7 @@ export class SlideTrack extends Component {
         // Art level cao uốn chữ S. Dịch control point theo trục X của lane rồi
         // lấy mẫu Catmull-Rom để nhân vật bám thân máng thay vì cắt đường thẳng.
         const scaleX = Math.abs(this.node.worldScale.x);
-        for (let i = 0; i < this.slidePath.length && i < path.length; i++) {
+        for (let i = 0; i < path.length; i++) {
             path[i].x += (SlideTrack.CURVED_PATH_X_OFFSETS[i] ?? 0) * scaleX;
         }
 

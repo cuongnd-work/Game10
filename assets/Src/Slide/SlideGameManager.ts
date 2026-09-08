@@ -173,9 +173,12 @@ export class SlideGameManager extends Component {
         if (!this.upgradeEffectPrefab || !this.effectLayer) return;
 
         const effect = instantiate(this.upgradeEffectPrefab);
+        effect.active = false;
         effect.parent = this.effectLayer;
         effect.worldPosition = new Vec3(worldPos.x, worldPos.y + 80, worldPos.z);
         effect.setScale(scale, scale, 1);
+        this.setLayerRecursively(effect, this.node.layer);
+        effect.active = true;
 
         const opacity = effect.getComponent(UIOpacity) ?? effect.addComponent(UIOpacity);
         opacity.opacity = 255;

@@ -52,11 +52,11 @@ export const SLIDE_CONFIG = {
 
     // --- Hồ bơi (sau khi qua cổng vòm) ---
     /** Giây khách trôi từ cổng vòm vào lòng hồ. Tính vào POOL_STAY_DURATION. */
-    POOL_DRIFT_DURATION: 0.6,
-    /** Tổng số giây khách ở trong hồ, tính từ lúc qua cổng vòm tới lúc bắt đầu mờ. */
-    POOL_STAY_DURATION: 5,
-    /** Giây mờ dần rồi biến mất (trả về pool object). */
-    POOL_FADE_DURATION: 0.4,
+    POOL_DRIFT_DURATION: 0.25,
+    /** Giữ khách trong nước 0.8s rồi fade 0.2s: tổng cộng đúng 1 giây. */
+    POOL_STAY_DURATION: 0.8,
+    /** Phần fade cuối trong tổng thời gian 1 giây ở hồ. */
+    POOL_FADE_DURATION: 0.2,
     /**
      * Điểm khách trôi tới trong hồ = vị trí cổng vòm + hướng vào lòng hồ * độ sâu
      * ngẫu nhiên, cộng chút lệch dọc theo mặt nước.

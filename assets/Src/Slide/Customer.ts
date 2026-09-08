@@ -282,7 +282,9 @@ export class Customer extends Component {
         Tween.stopAllByTarget(opacity);
         opacity.opacity = 255;
 
-        this.applyFacing(targetWorld);
+        // Animation dưới nước luôn giữ hướng gốc. Không flip theo điểm drift
+        // ngẫu nhiên vì sẽ làm nhân vật lật ngay lúc chạm mặt nước.
+        if (this.visualRoot) this.visualRoot.setScale(this._visualBaseScale);
 
         const drift = Math.max(0.01, SLIDE_CONFIG.POOL_DRIFT_DURATION);
         const soak = Math.max(0, SLIDE_CONFIG.POOL_STAY_DURATION - drift);

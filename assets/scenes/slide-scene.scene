@@ -21565,14 +21565,14 @@
       "x": 0,
       "y": 90
     },
-    "portraitScale": 1,
+    "portraitScale": 1.1,
     "landscapeAnchor": 4,
     "landscapeOffset": {
       "__type__": "cc.Vec2",
       "x": -60,
       "y": 20
     },
-    "landscapeScale": 1.4,
+    "landscapeScale": 1.5,
     "_id": "oFTNCkiu0ZEUm3cCO3aWrx"
   },
   {
