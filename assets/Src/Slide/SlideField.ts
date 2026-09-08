@@ -58,7 +58,7 @@ export class SlideField extends Component {
         this._queues = this.queueLanes.map(() => []);
         this.layout?.setActive(true);
         this.applyLevel();
-        this.applyLaneCount(false);
+        this.applyLaneCount();
     }
 
     protected start(): void {
@@ -82,10 +82,10 @@ export class SlideField extends Component {
 
     // ── Điều khiển từ SlideGame ──────────────────────────────────
 
-    /** Áp số làn mới; làn vừa bật sẽ chạy VFX xuất hiện. */
+    /** Áp số làn mới; SlideGameManager phát Firework tại làn vừa bật. */
     setLaneCount(count: number): void {
         SLIDE_RUNTIME.laneCount = Math.max(1, count);
-        this.applyLaneCount(true);
+        this.applyLaneCount();
         this.dispatch();
     }
 
@@ -93,7 +93,7 @@ export class SlideField extends Component {
     setLevel(level: number): void {
         SLIDE_RUNTIME.slideLevel = Math.max(1, level);
         this.applyLevel();
-        this.applyLaneCount(false);
+        this.applyLaneCount();
         this.resetAllCustomers();
     }
 
@@ -354,18 +354,14 @@ export class SlideField extends Component {
         this.layout?.applyLevel(SLIDE_RUNTIME.slideLevel);
     }
 
-    private applyLaneCount(playAppearEffect: boolean): void {
+    private applyLaneCount(): void {
         const layout = this.currentLayout();
         if (!layout) return;
 
         for (const track of layout.tracks) {
             if (!track) continue;
             const shouldBeActive = track.laneIndex < SLIDE_RUNTIME.laneCount;
-            const wasActive = track.node.active;
             track.setActive(shouldBeActive);
-            if (shouldBeActive && !wasActive && playAppearEffect) {
-                track.playAppearEffect();
-            }
         }
     }
 
