@@ -376,6 +376,13 @@
     "audioContainerNode": {
       "__id__": 537
     },
+    "upgradeEffectPrefab": {
+      "__uuid__": "c94d5b47-1175-4020-9ffd-1694c543c458",
+      "__expectedType__": "cc.Prefab"
+    },
+    "effectLayer": {
+      "__id__": 539
+    },
     "_id": "ABjtGnLTbWI+2LFtO+7Hp9"
   },
   {
@@ -4525,8 +4532,8 @@
     },
     "handOffset": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": -70,
+      "x": 18,
+      "y": -20,
       "z": 0
     },
     "giftHandOffset": {
@@ -5416,7 +5423,10 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "coinLabelPrefab": null,
+    "coinLabelPrefab": {
+      "__uuid__": "395af895-a63c-48f6-b717-80ddd49ed577",
+      "__expectedType__": "cc.Prefab"
+    },
     "multiplierLabelPrefab": null,
     "multiplierOffset": {
       "__type__": "cc.Vec3",
@@ -7571,7 +7581,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 0,
+      "x": 24,
       "y": 0,
       "z": 0
     },
@@ -11326,7 +11336,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "laneIndex": 7,
+    "laneIndex": 6,
     "platformPoint": {
       "__id__": 275
     },
@@ -12594,7 +12604,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "laneIndex": 6,
+    "laneIndex": 4,
     "platformPoint": {
       "__id__": 306
     },
@@ -13862,7 +13872,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "laneIndex": 5,
+    "laneIndex": 2,
     "platformPoint": {
       "__id__": 337
     },
@@ -15130,7 +15140,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "laneIndex": 4,
+    "laneIndex": 0,
     "platformPoint": {
       "__id__": 368
     },
@@ -16398,7 +16408,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "laneIndex": 3,
+    "laneIndex": 1,
     "platformPoint": {
       "__id__": 399
     },
@@ -17666,7 +17676,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "laneIndex": 2,
+    "laneIndex": 3,
     "platformPoint": {
       "__id__": 430
     },
@@ -18934,7 +18944,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "laneIndex": 1,
+    "laneIndex": 5,
     "platformPoint": {
       "__id__": 461
     },
@@ -20202,7 +20212,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "laneIndex": 0,
+    "laneIndex": 7,
     "platformPoint": {
       "__id__": 492
     },
@@ -21590,6 +21600,14 @@
     "soundCarHorn": null,
     "soundMaleSad": null,
     "soundClick": null,
+    "collectCoinClip": {
+      "__uuid__": "9ae04d10-8b2b-41a0-b2f3-a3e2c9183633",
+      "__expectedType__": "cc.AudioClip"
+    },
+    "upgradeClip": {
+      "__uuid__": "b0e8e49d-a030-4b35-bc18-e02f19d9330d",
+      "__expectedType__": "cc.AudioClip"
+    },
     "_id": "hbHjlnoN7e9pCMAJ5OXGdA"
   },
   {

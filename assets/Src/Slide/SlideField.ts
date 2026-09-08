@@ -104,6 +104,15 @@ export class SlideField extends Component {
         }
     }
 
+    /** Điểm đặt VFX của làn vừa được mở, theo thứ tự laneIndex đã sắp giữa-ra-ngoài. */
+    getLaneUpgradeWorldPos(laneCount: number): Vec3 {
+        const tracks = this.layout?.tracks
+            .filter((track) => !!track)
+            .sort((a, b) => a.laneIndex - b.laneIndex) ?? [];
+        const added = tracks[Math.max(0, Math.min(tracks.length - 1, laneCount - 1))];
+        return added?.getPlatformWorldPos() ?? this.node.worldPosition.clone();
+    }
+
     /**
      * Lv Up: xoá sạch khách, lấp lại hàng chờ, đưa khách lên mọi platform rồi
      * cho trượt ĐỒNG LOẠT trong cùng một frame (theo spec mục 4.3).

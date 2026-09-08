@@ -193,6 +193,11 @@ export class Customer extends Component {
 
         this.setState(CustomerState.SLIDING);
         this.playAnim(this.slideAnimName);
+        // Slide art dùng animation nhìn chính diện (Front_Slide). Không lật trái/phải
+        // theo từng waypoint vì đường ống đi chéo sẽ làm nhân vật đổi hướng giữa máng.
+        if (this.visualRoot) {
+            this.visualRoot.setScale(this._visualBaseScale);
+        }
         this.onSlideStart?.();
 
         const total = Math.max(0.05, SLIDE_RUNTIME.slideDuration);
@@ -202,7 +207,6 @@ export class Customer extends Component {
         for (let i = 0; i < pathWorld.length; i++) {
             const waypoint = pathWorld[i];
             chain = chain
-                .call(() => this.applyFacing(waypoint))
                 .to(
                     durations[i],
                     { position: this.worldToParentLocal(waypoint) },

@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, AudioSource } from 'cc';
+import { _decorator, AudioClip, AudioSource, Component, Node } from 'cc';
 const { ccclass, property } = _decorator;
 
 /**
@@ -28,11 +28,21 @@ export class AudioContainer extends Component {
     @property(Node)
     soundClick: Node = null!;          // play khi tap button attendant popup
 
+    /** Fallback cho scene Slide: không cần dựng thêm node AudioSource bằng tay. */
+    @property(AudioClip)
+    collectCoinClip: AudioClip = null!;
+
+    @property(AudioClip)
+    upgradeClip: AudioClip = null!;
+
+    private _collectCoinSource: AudioSource | null = null;
+    private _upgradeSource: AudioSource | null = null;
+
     // ─────────────────── Public API ──────────────────────────
 
     playWarning():      void { this._play(this.soundWarning); }
-    playUnlock():       void { this._play(this.soundUnlock); }
-    playCollectCoin():  void { this._play(this.soundCollectCoin); }
+    playUnlock():       void { this._playClipOrNode(this.soundUnlock, this.upgradeClip, 'upgrade'); }
+    playCollectCoin():  void { this._playClipOrNode(this.soundCollectCoin, this.collectCoinClip, 'coin'); }
     playRefueling():    void { this._play(this.soundRefueling); }
     playCarHorn():      void { this._play(this.soundCarHorn); }
     playMaleSad():      void { this._play(this.soundMaleSad); }
@@ -44,5 +54,25 @@ export class AudioContainer extends Component {
         if (!node) return;
         const audio = node.getComponent(AudioSource);
         if (audio) audio.play();
+    }
+
+    private _playClipOrNode(node: Node, clip: AudioClip, kind: 'coin' | 'upgrade'): void {
+        const nodeSource = node?.getComponent(AudioSource) ?? null;
+        if (nodeSource) {
+            nodeSource.play();
+            return;
+        }
+        if (!clip) return;
+
+        let source = kind === 'coin' ? this._collectCoinSource : this._upgradeSource;
+        if (!source) {
+            source = this.node.addComponent(AudioSource);
+            source.playOnAwake = false;
+            source.loop = false;
+            if (kind === 'coin') this._collectCoinSource = source;
+            else this._upgradeSource = source;
+        }
+        source.clip = clip;
+        source.play();
     }
 }

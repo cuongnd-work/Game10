@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3 } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab, tween, UIOpacity, Vec3 } from 'cc';
 import { SLIDE_CONFIG } from 'db://assets/Src/Slide/SlideConfig';
 import { SlideField } from 'db://assets/Src/Slide/SlideField';
 import { SlideGame } from 'db://assets/Src/Slide/SlideGame';
@@ -46,6 +46,12 @@ export class SlideGameManager extends Component {
 
     @property(Node)
     audioContainerNode: Node = null!;
+
+    @property(Prefab)
+    upgradeEffectPrefab: Prefab = null!;
+
+    @property(Node)
+    effectLayer: Node = null!;
 
     private _money: number = 0;
     private _stage: SlideStage = 'tutorial';
@@ -127,12 +133,14 @@ export class SlideGameManager extends Component {
     private handleSpeedUpgraded(level: number, duration: number): void {
         tracking_service.trackInteraction('speed_upgraded', { level, slide_duration: duration });
         this.audio?.playUnlock();
+        this.playUpgradeEffect(this.field?.node.worldPosition ?? this.node.worldPosition, 1.15);
         this.afterUpgrade();
     }
 
     private handleLaneAdded(laneCount: number): void {
         tracking_service.trackInteraction('lane_added', { lane_count: laneCount });
         this.audio?.playUnlock();
+        this.playUpgradeEffect(this.field?.getLaneUpgradeWorldPos(laneCount) ?? this.node.worldPosition, 0.9);
         // Lượt trượt đầu tiên chỉ bắt đầu sau khi player bấm nút Slide.
         this.field?.startRides();
         this.afterUpgrade();
@@ -141,7 +149,30 @@ export class SlideGameManager extends Component {
     private handleLevelUp(level: number): void {
         tracking_service.trackInteraction('level_up', { level });
         this.audio?.playUnlock();
+        this.playUpgradeEffect(this.field?.node.worldPosition ?? this.node.worldPosition, 1.35);
         this.afterUpgrade();
+    }
+
+    /** Hiệu ứng sao dùng chung cho Speed / thêm làn / Lv Up, tự huỷ sau một nhịp. */
+    private playUpgradeEffect(worldPos: Vec3, scale: number): void {
+        if (!this.upgradeEffectPrefab || !this.effectLayer) return;
+
+        const effect = instantiate(this.upgradeEffectPrefab);
+        effect.parent = this.effectLayer;
+        effect.worldPosition = new Vec3(worldPos.x, worldPos.y + 80, worldPos.z);
+        effect.setScale(scale, scale, 1);
+
+        const opacity = effect.getComponent(UIOpacity) ?? effect.addComponent(UIOpacity);
+        opacity.opacity = 255;
+        tween(effect)
+            .delay(0.65)
+            .to(0.25, { scale: new Vec3(scale * 1.12, scale * 1.12, 1) }, { easing: 'sineOut' })
+            .call(() => effect.destroy())
+            .start();
+        tween(opacity)
+            .delay(0.65)
+            .to(0.25, { opacity: 0 }, { easing: 'quadIn' })
+            .start();
     }
 
     /**
