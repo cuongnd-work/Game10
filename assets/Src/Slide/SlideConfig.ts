@@ -11,8 +11,8 @@ export const SLIDE_CONFIG = {
 
     // --- Speed upgrade ---
     /** Thời gian trượt thẳng ở level đầu. */
-    BASE_SLIDE_DURATION: 2,
-    /** 10 cấp đưa thời gian về khoảng 0.84s nhưng mỗi lần mua vẫn cải thiện rõ. */
+    BASE_SLIDE_DURATION: 1.6,
+    /** 10 cấp đưa thời gian về khoảng 0.45s nhưng mỗi lần mua vẫn cải thiện rõ. */
     SPEED_STEP: 0.88,
     SPEED_MAX_UPGRADES: 10,
     SPEED_UPGRADE_COST: 20,

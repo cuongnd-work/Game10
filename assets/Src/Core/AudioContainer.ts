@@ -37,12 +37,21 @@ export class AudioContainer extends Component {
 
     private _collectCoinSource: AudioSource | null = null;
     private _upgradeSource: AudioSource | null = null;
+    private _lastCollectCoinAt: number = -Infinity;
+
+    /** Gộp nhóm khách tới cổng gần như cùng lúc, tránh chồng âm và clipping. */
+    private static readonly COLLECT_COIN_COOLDOWN_MS = 80;
 
     // ─────────────────── Public API ──────────────────────────
 
     playWarning():      void { this._play(this.soundWarning); }
     playUnlock():       void { this._playClipOrNode(this.soundUnlock, this.upgradeClip, 'upgrade'); }
-    playCollectCoin():  void { this._playClipOrNode(this.soundCollectCoin, this.collectCoinClip, 'coin'); }
+    playCollectCoin():  void {
+        const now = Date.now();
+        if (now - this._lastCollectCoinAt < AudioContainer.COLLECT_COIN_COOLDOWN_MS) return;
+        this._lastCollectCoinAt = now;
+        this._playClipOrNode(this.soundCollectCoin, this.collectCoinClip, 'coin', true);
+    }
     playRefueling():    void { this._play(this.soundRefueling); }
     playCarHorn():      void { this._play(this.soundCarHorn); }
     playMaleSad():      void { this._play(this.soundMaleSad); }
@@ -56,10 +65,16 @@ export class AudioContainer extends Component {
         if (audio) audio.play();
     }
 
-    private _playClipOrNode(node: Node, clip: AudioClip, kind: 'coin' | 'upgrade'): void {
+    private _playClipOrNode(
+        node: Node,
+        clip: AudioClip,
+        kind: 'coin' | 'upgrade',
+        allowOverlap: boolean = false,
+    ): void {
         const nodeSource = node?.getComponent(AudioSource) ?? null;
         if (nodeSource) {
-            nodeSource.play();
+            if (allowOverlap && nodeSource.clip) nodeSource.playOneShot(nodeSource.clip);
+            else nodeSource.play();
             return;
         }
         if (!clip) return;
@@ -73,6 +88,7 @@ export class AudioContainer extends Component {
             else this._upgradeSource = source;
         }
         source.clip = clip;
-        source.play();
+        if (allowOverlap) source.playOneShot(clip);
+        else source.play();
     }
 }
