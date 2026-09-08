@@ -1,4 +1,14 @@
-import { _decorator, Component, instantiate, Node, Prefab, tween, UIOpacity, Vec3 } from 'cc';
+import {
+    _decorator,
+    Component,
+    instantiate,
+    Node,
+    ParticleSystem,
+    Prefab,
+    tween,
+    UIOpacity,
+    Vec3,
+} from 'cc';
 import { SLIDE_CONFIG } from 'db://assets/Src/Slide/SlideConfig';
 import { SlideField } from 'db://assets/Src/Slide/SlideField';
 import { SlideGame } from 'db://assets/Src/Slide/SlideGame';
@@ -185,11 +195,21 @@ export class SlideGameManager extends Component {
         if (!this.laneUpgradeEffectPrefab || !this.effectLayer) return;
 
         const effect = instantiate(this.laneUpgradeEffectPrefab);
+        effect.active = false;
         effect.parent = this.effectLayer;
         effect.worldPosition = new Vec3(worldPos.x, worldPos.y + 45, worldPos.z);
         // EffectLayer còn giữ layer camera world cũ; manager nằm trên đúng UI
         // gameplay layer của slide-scene nên dùng layer này cho toàn bộ particle.
         this.setLayerRecursively(effect, this.node.layer);
+        effect.active = true;
+
+        // Particle prefab có playOnAwake; restart sau khi đã đặt đúng transform
+        // và layer để burst đầu tiên không bị phát ở vị trí mặc định rồi mất.
+        for (const particle of effect.getComponentsInChildren(ParticleSystem)) {
+            particle.stop();
+            particle.clear();
+            particle.play();
+        }
 
         // Firework prefab chạy loop 1 giây; giữ thêm phần lifetime của hạt rồi hủy.
         this.scheduleOnce(() => {
