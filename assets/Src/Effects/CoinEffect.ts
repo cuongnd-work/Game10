@@ -93,6 +93,9 @@ export class CoinEffect extends Component {
         const opacity = labelNode.getComponent(UIOpacity) || labelNode.addComponent(UIOpacity);
         opacity.opacity = 255;
 
+        const baseScale = labelNode.scale.clone();
+        labelNode.setScale(baseScale.x * 0.72, baseScale.y * 0.72, baseScale.z);
+
         // Nảy lên tại chỗ spawn và fade song song – không dừng rồi mới fade.
         const bounceTarget = worldPos.clone();
         bounceTarget.y += 180;
@@ -101,6 +104,13 @@ export class CoinEffect extends Component {
         tween(labelNode)
             .to(duration, { worldPosition: bounceTarget }, { easing: 'sineOut' })
             .call(() => { labelNode.destroy(); })
+            .start();
+
+        tween(labelNode)
+            .to(0.16, {
+                scale: new Vec3(baseScale.x * 1.18, baseScale.y * 1.18, baseScale.z),
+            }, { easing: 'backOut' })
+            .to(0.18, { scale: baseScale }, { easing: 'quadOut' })
             .start();
 
         tween(opacity)
