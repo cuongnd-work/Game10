@@ -343,16 +343,26 @@ export class Customer extends Component {
         const node = this.speedBubble;
         if (!node) return;
         Tween.stopAllByTarget(node);
+        // Prefab khách có thể đang ở hàng chờ, trên platform hoặc đã reparent
+        // vào riderSlot. Lấy world position của chính visual tại lúc phát để
+        // effect luôn nằm đúng trên từng nhân vật.
+        node.worldPosition = (this.visualRoot ?? this.node).worldPosition.clone();
         node.active = true;
         const effect = node.getComponent(sp.Skeleton);
-        effect?.setAnimation(0, 'fx_above', false);
-
         const playId = ++this._speedEffectPlayId;
-        this.scheduleOnce(() => {
-            if (playId === this._speedEffectPlayId) {
+
+        if (!effect) {
+            node.active = false;
+            return;
+        }
+
+        effect.setCompleteListener(() => {
+            if (playId === this._speedEffectPlayId && node.isValid) {
                 node.active = false;
+                effect.setCompleteListener(null);
             }
-        }, 0.6);
+        });
+        effect.setAnimation(0, 'fx_above', false);
     }
 
     // ── Pool ─────────────────────────────────────────────────────
@@ -391,6 +401,7 @@ export class Customer extends Component {
         if (this.speedBubble) {
             this._speedEffectPlayId++;
             Tween.stopAllByTarget(this.speedBubble);
+            this.speedBubble.getComponent(sp.Skeleton)?.setCompleteListener(null);
             this.speedBubble.active = false;
         }
         // Khách vừa ở trong hồ có thể đang nhấp nhô + đang mờ dần: phải dọn cả
