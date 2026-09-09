@@ -38,6 +38,9 @@ export class UpgradeButton extends Component {
     @property({ type: Sprite, tooltip: 'Sprite nền của nút – bị tô xám khi MAX' })
     buttonSprite: Sprite = null!;
 
+    @property({ type: Sprite, tooltip: 'Icon của nút – bị tô xám khi MAX. Bỏ trống sẽ tự tìm child tên Icon.' })
+    iconSprite: Sprite = null!;
+
     @property({ type: Node, tooltip: 'Overlay phủ thêm khi MAX (optional)' })
     maxOverlay: Node = null!;
 
@@ -75,6 +78,9 @@ export class UpgradeButton extends Component {
 
     protected onLoad(): void {
         this.tapTarget = this.tapTarget ?? this.node;
+        this.iconSprite = this.iconSprite
+            ?? this.node.getChildByName('Icon')?.getComponent(Sprite)
+            ?? null!;
         this.bindTouch();
         if (this.maxOverlay) this.maxOverlay.active = false;
     }
@@ -95,6 +101,9 @@ export class UpgradeButton extends Component {
 
         if (this.buttonSprite) {
             this.buttonSprite.color = state.isMax ? this.maxTint : this.normalTint;
+        }
+        if (this.iconSprite) {
+            this.iconSprite.color = state.isMax ? this.maxTint : this.normalTint;
         }
         if (this.maxOverlay) this.maxOverlay.active = state.isMax;
 

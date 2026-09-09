@@ -1,4 +1,4 @@
-import { _decorator, CCFloat, Component, Node, Sprite, SpriteFrame, Vec3, sp } from 'cc';
+import { _decorator, CCFloat, Component, Material, Node, Sprite, SpriteFrame, tween, Vec3, Vec4, sp } from 'cc';
 import { Customer } from 'db://assets/Src/Slide/Customer';
 import { SLIDE_CONFIG } from 'db://assets/Src/Slide/SlideConfig';
 
@@ -228,6 +228,43 @@ export class SlideTrack extends Component {
     /** Bật spine "appear" khi làn được mở. Tự ẩn khi anim chạy xong. */
     playAppearEffect(): void {
         this.playOneShot(this.appearEffects, this.appearAnimName);
+    }
+
+    /** Lóe trắng Body + Rail khi làn xuất hiện hoặc đổi art lúc Level Up. */
+    playSpriteFlash(sourceMaterial: Material | null): void {
+        if (!sourceMaterial) return;
+
+        const sprites = [this.bodySprite, this.railSprite].filter((sprite) => !!sprite);
+        for (const sprite of sprites) {
+            const originalMaterial = sprite.customMaterial ?? null;
+            // Clone riêng để uniform của lane này không kéo các lane khác flash theo.
+            const flashMaterial = new Material();
+            flashMaterial.copy(sourceMaterial);
+            sprite.customMaterial = flashMaterial;
+
+            const materialInstance = sprite.getMaterialInstance(0);
+            if (!materialInstance) {
+                sprite.customMaterial = originalMaterial;
+                flashMaterial.destroy();
+                continue;
+            }
+
+            const state = { amount: 1 };
+            const applyAmount = (): void => {
+                materialInstance.setProperty('flashAmount', state.amount);
+                materialInstance.setProperty('flashParams', new Vec4(state.amount, 0, 0, 0));
+            };
+            applyAmount();
+
+            tween(state)
+                .delay(0.08)
+                .to(0.42, { amount: 0 }, { onUpdate: applyAmount })
+                .call(() => {
+                    sprite.customMaterial = originalMaterial;
+                    flashMaterial.destroy();
+                })
+                .start();
+        }
     }
 
     /** Bật spine toé nước ở cổng vòm khi khách kết thúc lượt trượt. */

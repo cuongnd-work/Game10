@@ -1,4 +1,4 @@
-import { _decorator, AudioClip, AudioSource, Component, Node } from 'cc';
+import { _decorator, assetManager, AudioClip, AudioSource, Component, Node } from 'cc';
 const { ccclass, property } = _decorator;
 
 /**
@@ -35,12 +35,52 @@ export class AudioContainer extends Component {
     @property(AudioClip)
     upgradeClip: AudioClip = null!;
 
+    @property({ type: AudioClip, tooltip: 'Nhạc nền phát lặp khi scene bắt đầu.' })
+    backgroundMusicClip: AudioClip = null!;
+
+    @property({ range: [0, 1, 0.05], tooltip: 'Âm lượng nhạc nền.' })
+    backgroundMusicVolume: number = 0.35;
+
     private _collectCoinSource: AudioSource | null = null;
     private _upgradeSource: AudioSource | null = null;
+    private _backgroundMusicSource: AudioSource | null = null;
     private _lastCollectCoinAt: number = -Infinity;
 
     /** Gộp nhóm khách tới cổng gần như cùng lúc, tránh chồng âm và clipping. */
     private static readonly COLLECT_COIN_COOLDOWN_MS = 80;
+    private static readonly BACKGROUND_MUSIC_UUID = 'a4fe739f-59c4-4e50-9302-48934c538a50';
+
+    protected start(): void {
+        if (this.backgroundMusicClip) {
+            this.playBackgroundMusic(this.backgroundMusicClip);
+            return;
+        }
+
+        // Cocos có thể reset property về null khi asset vừa import trong lúc
+        // scene đang mở; UUID fallback giữ BGM hoạt động sau lần save đó.
+        assetManager.loadAny(
+            { uuid: AudioContainer.BACKGROUND_MUSIC_UUID },
+            (error, asset) => {
+                if (error || !(asset instanceof AudioClip)) {
+                    console.warn('[AudioContainer] Khong load duoc background music.', error);
+                    return;
+                }
+                this.backgroundMusicClip = asset;
+                this.playBackgroundMusic(asset);
+            },
+        );
+    }
+
+    private playBackgroundMusic(clip: AudioClip): void {
+        if (this._backgroundMusicSource) return;
+        const source = this.node.addComponent(AudioSource);
+        source.clip = clip;
+        source.loop = true;
+        source.playOnAwake = false;
+        source.volume = this.backgroundMusicVolume;
+        source.play();
+        this._backgroundMusicSource = source;
+    }
 
     // ─────────────────── Public API ──────────────────────────
 

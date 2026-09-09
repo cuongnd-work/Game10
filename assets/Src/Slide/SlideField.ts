@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Prefab, Vec3, instantiate, math } from 'cc';
+import { _decorator, assetManager, Component, Material, Node, Prefab, Vec3, instantiate, math } from 'cc';
 import { SLIDE_CONFIG, SLIDE_RUNTIME, resetSlideRuntime } from 'db://assets/Src/Slide/SlideConfig';
 import { Customer, CustomerState } from 'db://assets/Src/Slide/Customer';
 import { SlideLevel } from 'db://assets/Src/Slide/SlideLevel';
@@ -39,6 +39,9 @@ export class SlideField extends Component {
     })
     layout: SlideLevel = null!;
 
+    @property({ type: Material, tooltip: 'Material flash-white áp lên Body/Rail khi mở hoặc nâng cấp slide.' })
+    slideFlashMaterial: Material = null!;
+
     /** Khách vừa qua cổng vòm – GameManager dùng để cộng tiền + bắn coin effect. */
     onRideCompleted: ((worldPos: Vec3) => void) | null = null;
     /** Một khách bắt đầu trượt (dùng cho SFX). */
@@ -51,6 +54,10 @@ export class SlideField extends Component {
     private _initialFilled: boolean = false;
     /** Cổng chặn lượt trượt: chỉ mở khi player bấm nút Slide lần đầu. */
     private _ridesStarted: boolean = false;
+    private _loadingSlideFlashMaterial: boolean = false;
+    private _pendingFlashTracks: SlideTrack[] = [];
+
+    private static readonly SLIDE_FLASH_MATERIAL_UUID = '3fd79540-6db6-4288-a180-2defaf619d83';
 
     protected onLoad(): void {
         // Scene reload không được giữ state cũ.
@@ -59,6 +66,7 @@ export class SlideField extends Component {
         this.layout?.setActive(true);
         this.applyLevel();
         this.applyLaneCount();
+        this.ensureSlideFlashMaterial();
     }
 
     protected start(): void {
@@ -86,6 +94,8 @@ export class SlideField extends Component {
     setLaneCount(count: number): void {
         SLIDE_RUNTIME.laneCount = Math.max(1, count);
         this.applyLaneCount();
+        const addedTrack = this.layout?.orderedTracks()[SLIDE_RUNTIME.laneCount - 1];
+        if (addedTrack) this.flashTracks([addedTrack]);
         this.dispatch();
     }
 
@@ -94,6 +104,7 @@ export class SlideField extends Component {
         SLIDE_RUNTIME.slideLevel = Math.max(1, level);
         this.applyLevel();
         this.applyLaneCount();
+        this.flashTracks(this.activeTracks());
         this.resetAllCustomers();
     }
 
@@ -365,6 +376,42 @@ export class SlideField extends Component {
         for (let index = 0; index < tracks.length; index++) {
             tracks[index].setActive(index < SLIDE_RUNTIME.laneCount);
         }
+    }
+
+    private flashTracks(tracks: SlideTrack[]): void {
+        if (this.slideFlashMaterial) {
+            for (const track of tracks) track.playSpriteFlash(this.slideFlashMaterial);
+            return;
+        }
+
+        for (const track of tracks) {
+            if (!this._pendingFlashTracks.includes(track)) this._pendingFlashTracks.push(track);
+        }
+        this.ensureSlideFlashMaterial();
+    }
+
+    /** Fallback runtime nếu Cocos Editor lưu scene và làm mất reference material. */
+    private ensureSlideFlashMaterial(): void {
+        if (this.slideFlashMaterial || this._loadingSlideFlashMaterial) return;
+        this._loadingSlideFlashMaterial = true;
+
+        assetManager.loadAny(
+            { uuid: SlideField.SLIDE_FLASH_MATERIAL_UUID },
+            (error, asset) => {
+                this._loadingSlideFlashMaterial = false;
+                if (error || !(asset instanceof Material)) {
+                    console.warn('[SlideField] Khong load duoc slide flash material.', error);
+                    this._pendingFlashTracks.length = 0;
+                    return;
+                }
+
+                this.slideFlashMaterial = asset;
+                const pending = this._pendingFlashTracks.splice(0);
+                for (const track of pending) {
+                    if (track.node.active) track.playSpriteFlash(this.slideFlashMaterial);
+                }
+            },
+        );
     }
 
     // ── Pool ─────────────────────────────────────────────────────
