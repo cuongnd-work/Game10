@@ -35,10 +35,30 @@ export class SlideLevel extends Component {
         }
     }
 
-    /** Các làn đang bật, sắp xếp theo laneIndex. */
-    activeTracks(): SlideTrack[] {
+    /**
+     * Thứ tự mở làn theo tên node: Lane_9 -> Lane_0.
+     * laneIndex mô tả bố cục cũ (giữa-ra-ngoài), nên không dùng nó để quyết
+     * định thứ tự unlock nữa. Track không đúng format Lane_N sẽ nằm cuối và
+     * vẫn dùng laneIndex làm fallback ổn định.
+     */
+    orderedTracks(): SlideTrack[] {
         return this.tracks
-            .filter((track) => !!track && track.node.active)
-            .sort((a, b) => a.laneIndex - b.laneIndex);
+            .filter((track) => !!track)
+            .sort((a, b) => {
+                const aNumber = this.laneNumber(a);
+                const bNumber = this.laneNumber(b);
+                if (aNumber !== bNumber) return bNumber - aNumber;
+                return a.laneIndex - b.laneIndex;
+            });
+    }
+
+    /** Các làn đang bật theo đúng thứ tự unlock Lane_9 -> Lane_0. */
+    activeTracks(): SlideTrack[] {
+        return this.orderedTracks().filter((track) => track.node.active);
+    }
+
+    private laneNumber(track: SlideTrack): number {
+        const match = /^Lane_(\d+)$/i.exec(track.node.name);
+        return match ? Number(match[1]) : Number.NEGATIVE_INFINITY;
     }
 }
