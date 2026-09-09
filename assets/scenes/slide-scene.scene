@@ -380,10 +380,6 @@
       "__uuid__": "c94d5b47-1175-4020-9ffd-1694c543c458",
       "__expectedType__": "cc.Prefab"
     },
-    "laneUpgradeEffectPrefab": {
-      "__uuid__": "ad6b892f-2121-4bb8-9385-87d523fa1f2b",
-      "__expectedType__": "cc.Prefab"
-    },
     "effectLayer": {
       "__id__": 539
     },

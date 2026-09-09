@@ -3,7 +3,6 @@ import {
     Component,
     instantiate,
     Node,
-    ParticleSystem,
     Prefab,
     tween,
     UIOpacity,
@@ -59,9 +58,6 @@ export class SlideGameManager extends Component {
 
     @property(Prefab)
     upgradeEffectPrefab: Prefab = null!;
-
-    @property({ type: Prefab, tooltip: 'Firework VFX phát tại làn vừa mở.' })
-    laneUpgradeEffectPrefab: Prefab = null!;
 
     @property(Node)
     effectLayer: Node = null!;
@@ -146,15 +142,15 @@ export class SlideGameManager extends Component {
     private handleSpeedUpgraded(level: number, duration: number): void {
         tracking_service.trackInteraction('speed_upgraded', { level, slide_duration: duration });
         this.audio?.playUnlock();
-        this.playUpgradeEffect(this.field?.node.worldPosition ?? this.node.worldPosition, 1.15);
         this.afterUpgrade();
     }
 
     private handleLaneAdded(laneCount: number): void {
         tracking_service.trackInteraction('lane_added', { lane_count: laneCount });
         this.audio?.playUnlock();
-        this.playLaneUpgradeEffect(
+        this.playUpgradeEffect(
             this.field?.getLaneUpgradeWorldPos(laneCount) ?? this.node.worldPosition,
+            1.05,
         );
         // Lượt trượt đầu tiên chỉ bắt đầu sau khi player bấm nút Slide.
         this.field?.startRides();
@@ -164,18 +160,30 @@ export class SlideGameManager extends Component {
     private handleLevelUp(level: number): void {
         tracking_service.trackInteraction('level_up', { level });
         this.audio?.playUnlock();
-        this.playUpgradeEffect(this.field?.node.worldPosition ?? this.node.worldPosition, 1.35);
+        this.playUpgradeEffectOnActiveLanes(1.05);
         this.afterUpgrade();
     }
 
-    /** Hiệu ứng sao dùng chung cho Speed / thêm làn / Lv Up, tự huỷ sau một nhịp. */
+    /** Phát EffectUp tại từng slide đang mở, thay vì giữa màn hình. */
+    private playUpgradeEffectOnActiveLanes(scale: number): void {
+        const positions = this.field?.getActiveLaneUpgradeWorldPositions() ?? [];
+        if (positions.length === 0) {
+            this.playUpgradeEffect(this.node.worldPosition, scale);
+            return;
+        }
+        for (const position of positions) {
+            this.playUpgradeEffect(position, scale);
+        }
+    }
+
+    /** Hiệu ứng sao dùng chung cho thêm làn / Lv Up, tự huỷ sau một nhịp. */
     private playUpgradeEffect(worldPos: Vec3, scale: number): void {
         if (!this.upgradeEffectPrefab || !this.effectLayer) return;
 
         const effect = instantiate(this.upgradeEffectPrefab);
         effect.active = false;
         effect.parent = this.effectLayer;
-        effect.worldPosition = new Vec3(worldPos.x, worldPos.y + 80, worldPos.z);
+        effect.worldPosition = worldPos.clone();
         effect.setScale(scale, scale, 1);
         this.setLayerRecursively(effect, this.node.layer);
         effect.active = true;
@@ -191,33 +199,6 @@ export class SlideGameManager extends Component {
             .delay(0.65)
             .to(0.25, { opacity: 0 }, { easing: 'quadIn' })
             .start();
-    }
-
-    /** Firework riêng cho thao tác thêm làn; prefab particle đang để loop. */
-    private playLaneUpgradeEffect(worldPos: Vec3): void {
-        if (!this.laneUpgradeEffectPrefab || !this.effectLayer) return;
-
-        const effect = instantiate(this.laneUpgradeEffectPrefab);
-        effect.active = false;
-        effect.parent = this.effectLayer;
-        effect.worldPosition = new Vec3(worldPos.x, worldPos.y + 45, worldPos.z);
-        // EffectLayer còn giữ layer camera world cũ; manager nằm trên đúng UI
-        // gameplay layer của slide-scene nên dùng layer này cho toàn bộ particle.
-        this.setLayerRecursively(effect, this.node.layer);
-        effect.active = true;
-
-        // Particle prefab có playOnAwake; restart sau khi đã đặt đúng transform
-        // và layer để burst đầu tiên không bị phát ở vị trí mặc định rồi mất.
-        for (const particle of effect.getComponentsInChildren(ParticleSystem)) {
-            particle.stop();
-            particle.clear();
-            particle.play();
-        }
-
-        // Firework prefab chạy loop 1 giây; giữ thêm phần lifetime của hạt rồi hủy.
-        this.scheduleOnce(() => {
-            if (effect.isValid) effect.destroy();
-        }, 1.8);
     }
 
     private setLayerRecursively(node: Node, layer: number): void {

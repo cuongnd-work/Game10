@@ -165,6 +165,12 @@ export class SlideTrack extends Component {
         return (this.platformPoint ?? this.node).worldPosition.clone();
     }
 
+    /** Tâm thân slide để đặt VFX upgrade; ưu tiên marker AppearFx trong scene. */
+    getUpgradeEffectWorldPos(): Vec3 {
+        const marker = this.appearEffects.find((effect) => !!effect);
+        return (marker ?? this.bodySprite?.node ?? this.node).worldPosition.clone();
+    }
+
     /** slidePath + archNode. Waypoint cuối luôn là cổng vòm. */
     getSlidePathWorld(): Vec3[] {
         const path = this.slidePath

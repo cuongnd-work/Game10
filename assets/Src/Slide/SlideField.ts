@@ -108,7 +108,12 @@ export class SlideField extends Component {
     getLaneUpgradeWorldPos(laneCount: number): Vec3 {
         const tracks = this.layout?.orderedTracks() ?? [];
         const added = tracks[Math.max(0, Math.min(tracks.length - 1, laneCount - 1))];
-        return added?.getPlatformWorldPos() ?? this.node.worldPosition.clone();
+        return added?.getUpgradeEffectWorldPos() ?? this.node.worldPosition.clone();
+    }
+
+    /** Vị trí VFX của tất cả làn đang mở, theo thứ tự Lane_9 -> Lane_0. */
+    getActiveLaneUpgradeWorldPositions(): Vec3[] {
+        return this.activeTracks().map((track) => track.getUpgradeEffectWorldPos());
     }
 
     /**
